@@ -1393,7 +1393,7 @@ class Bedwars extends PluginBase implements Listener {
     ############################################################################################################
     ############################################################################################################
 
-    public function onCommand(CommandSender $sender, Command $command, string $label, array $args){
+    public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
 
         $name = $sender->getName();
         if(command->getName() == "Start" && $sender->hasPermission("bw.forcestart")){
@@ -1548,6 +1548,7 @@ class Bedwars extends PluginBase implements Listener {
                 $this->getServer()->dispatchCommand($sender, "bw help");
             }
         }
+	return false;
     }
 
 }
