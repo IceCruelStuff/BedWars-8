@@ -1548,7 +1548,7 @@ class Bedwars extends PluginBase implements Listener {
                 $this->getServer()->dispatchCommand($sender, "bw help");
             }
         }
-	return false;
+        return false;
     }
 
 }
