@@ -1396,7 +1396,7 @@ class Bedwars extends PluginBase implements Listener {
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
 
         $name = $sender->getName();
-        if(command->getName() == "Start" && $sender->hasPermission("bw.forcestart")){
+        if($command->getName() == "Start" && $sender->hasPermission("bw.forcestart")){
             if($sender instanceof Player){
                 if($this->inArena($sender)){
                     $arena = $this->getArena($sender);
@@ -1410,7 +1410,7 @@ class Bedwars extends PluginBase implements Listener {
                 }
             }
         }
-        if(command->getName() == "Bedwars" && $sender->isOP()){
+        if($command->getName() == "Bedwars" && $sender->isOP()){
             if(!empty($args[0])){
                 if(strtolower($args[0]) == "help" && $sender->isOP()){
                     $sender->sendMessage(TextFormat::GRAY."===============");
