@@ -49,7 +49,7 @@ use pocketmine\utils\TextFormat;
 
 class Bedwars extends PluginBase implements Listener {
 
-    public $prefix = TextFormat::GRAY."[".TextFormat::DARK_AQUA."Bedwars".TextFormat::GRAY."]".TextFormat::WHITE." ";
+    public $prefix = TextFormat::GRAY . "[" . TextFormat::DARK_AQUA . "Bedwars" . TextFormat::GRAY . "]" . TextFormat::WHITE . " ";
     public $registerSign = false;
     public $registerSignWHO = "";
     public $registerSignArena = "Arena1";
@@ -59,32 +59,32 @@ class Bedwars extends PluginBase implements Listener {
     public $registerBedTeam = "WHITE";
     public $mode = 0;
     public $arena = "Arena1";
-    public $lasthit = array();
-    public $pickup = array();
-    public $isShopping = array();
-    public $breakableblocks = array();
+    public $lasthit = [];
+    public $pickup = [];
+    public $isShopping = [];
+    public $breakableblocks = [];
 
-    public function onEnable(){
+    public function onEnable() {
 
-        //Entity::registerEntity(Villager::class, true);
+        // Entity::registerEntity(Villager::class, true);
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        $this->getLogger()->info($this->prefix.TextFormat::GREEN."BedWars plugin by NetherTechnology loaded!");
+        // $this->getLogger()->info($this->prefix . TextFormat::GREEN . "BedWars plugin by NetherTechnology loaded!");
         @mkdir($this->getDataFolder());
-        @mkdir($this->getDataFolder()."Arenas");
-        @mkdir($this->getDataFolder()."Maps");
+        @mkdir($this->getDataFolder() . "Arenas");
+        @mkdir($this->getDataFolder() . "Maps");
 
         $files = scandir($this->getDataFolder()."Arenas");
-        foreach($files as $filename){
-            if($filename != "." && $filename != ".."){
+        foreach ($files as $filename) {
+            if ($filename != "." && $filename != "..") {
                 $filename = str_replace(".yml", "", $filename);
 
                 $this->resetArena($filename);
 
                 $levels = $this->getArenaWorlds($filename);
-                foreach($levels as $levelname){
+                foreach ($levels as $levelname) {
                     $level = $this->getServer()->getLevelByName($levelname);
-                    if($level instanceof Level){
+                    if ($level instanceof Level) {
                         $this->getServer()->unloadLevel($level);
                     }
                     $this->copymap($this->getDataFolder() . "Maps/" . $levelname, $this->getServer()->getDataPath() . "worlds/" . $levelname);
@@ -94,148 +94,86 @@ class Bedwars extends PluginBase implements Listener {
                 $this->getServer()->loadLevel($this->getWarteLobby($filename));
             }
         }
-        $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
-        if(empty($cfg->get("LobbyTimer"))){
-            $cfg->set("LobbyTimer", 61);
-            $cfg->save();
+        $config = new Config($this->getDataFolder() . "config.yml", Config::YAML);
+        if (empty($config->get("LobbyTimer"))) {
+            $config->set("LobbyTimer", 61);
+            $config->save();
         }
-        if(empty($cfg->get("GameTimer"))){
-            $cfg->set("GameTimer", 30*60 +1);
-            $cfg->save();
+        if (empty($config->get("GameTimer"))) {
+            $config->set("GameTimer", 30 * 60 + 1);
+            $config->save();
         }
-        if(empty($cfg->get("EndTimer"))){
-            $cfg->set("EndTimer", 16);
-            $cfg->save();
-	}
-        if(empty($cfg->get("BreakableBlocks"))){
-            $cfg->set("BreakableBlocks", array(Item::SANDSTONE, Item::GLASS, Item::OBSIDIAN, Item::CAKE, Item::ENCHANTING_TABLE));
-            $cfg->save();
+        if (empty($config->get("EndTimer"))) {
+            $config->set("EndTimer", 16);
+            $config->save();
         }
-        $this->breakableblocks = $cfg->get("BreakableBlocks");
-	if(!is_file($this->getDataFolder()."messages.yml")){
-	file_put_contents($this->getDataFolder()."messages.yml", $this->getResource("messages.yml"));
-	}
-        $shop = new Config($this->getDataFolder()."shop.yml", Config::YAML);
+        if (empty($config->get("BreakableBlocks"))) {
+            $config->set("BreakableBlocks", [Item::SANDSTONE, Item::GLASS, Item::OBSIDIAN, Item::CAKE, Item::ENCHANTING_TABLE]);
+            $config->save();
+        }
+        $this->breakableblocks = $config->get("BreakableBlocks");
+        if (!is_file($this->getDataFolder() . "messages.yml")) {
+            file_put_contents($this->getDataFolder() . "messages.yml", $this->getResource("messages.yml"));
+        }
+        $shop = new Config($this->getDataFolder() . "shop.yml", Config::YAML);
 
         if ($shop->get("Shop") == null) {
-                $shop->set("Shop", array(
-                    
-                    Item::SANDSTONE,
-                    array(
-                        array(
-                            Item::SANDSTONE, 4, 336, 1
-                        ),
-                        array(
-                            Item::GLASS, 1, 336, 5
-                        ),
-                        array(
-                            Item::OBSIDIAN, 1, 264, 1
-                        )
-                    ),
-					Item::WOODEN_PICKAXE,
-                    array(
-                        array(
-                            Item::WOODEN_PICKAXE, 1, 336, 10
-                        ),
-                        array(
-                            Item::STONE_PICKAXE, 1, 265, 5
-                        ),
-                        array(
-                            Item::IRON_PICKAXE, 1, 266, 10
-                        ),
-                        array(
-                            Item::DIAMOND_PICKAXE, 1, 264, 5
-                        )
-                    ),
-					Item::BREAD,
-                    array(
-                        array(
-                            Item::BREAD, 1, 336, 10
-                        ),
-                        array(
-                            Item::STEAK, 1, 265, 5
-                        ),
-                        array(
-                            Item::CAKE, 1, 266, 10
-                        ),
-                        array(
-                            Item::GOLDEN_APPLE, 1, 264, 5
-                        )
-                    ),
-					Item::ENCHANTING_TABLE,
-                    array(
-						array(
-                            Item::BOOK, 5, 266, 10
-                        ),
-                        array(
-                            Item::ENCHANTING_TABLE, 1, 264, 20
-                        )
-                    ),
-					Item::BOW,
-                    array(
-                        array(
-                            Item::BOW, 1, 264, 1
-                        ),
-                        array(
-                            Item::ARROW, 2, 266, 1
-                        )
-                    ),
-					Item::WOODEN_SWORD,
-                    array(
-                        array(
-                            Item::WOODEN_SWORD, 1, 336, 20
-                        ),
-                        array(
-                            Item::STONE_SWORD, 1, 265, 2
-                        ),
-                        array(
-                            Item::IRON_SWORD, 1, 265, 10
-                        ),
-                        array(
-                            Item::DIAMOND_SWORD, 1, 264, 5
-                        )
-                    ),
-                    Item::IRON_CHESTPLATE,
-                    array(
-                        array(
-                            Item::LEATHER_CAP, 1, 336, 5
-                        ),
-                        array(
-                            Item::LEATHER_PANTS, 1, 336, 10
-                        ),
-                        array(
-                            Item::LEATHER_BOOTS, 1, 336, 5
-                        ),
-                        array(
-                            Item::LEATHER_TUNIC, 1, 336, 10
-                        ),
-						array(
-                            Item::CHAIN_CHESTPLATE, 1, 265, 5
-                        ),
-						array(
-                            Item::IRON_CHESTPLATE, 1, 266, 2
-                        ),
-                        array(
-                            Item::DIAMOND_CHESTPLATE, 1, 264, 5
-                        )
-                    )
-                )
-            );
+            $shop->set("Shop", [
+                Item::SANDSTONE,
+                [
+                    [Item::SANDSTONE, 4, 336, 1],
+                    [Item::GLASS, 1, 336, 5],
+                    [Item::OBSIDIAN, 1, 264, 1]
+                ],
+                Item::WOODEN_PICKAXE,
+                [
+                    [Item::WOODEN_PICKAXE, 1, 336, 10],
+                    [Item::STONE_PICKAXE, 1, 265, 5],
+                    [Item::IRON_PICKAXE, 1, 266, 10],
+                    [Item::DIAMOND_PICKAXE, 1, 264, 5]
+                ],
+                Item::BREAD,
+                [
+                    [Item::BREAD, 1, 336, 10],
+                    [Item::STEAK, 1, 265, 5],
+                    [Item::CAKE, 1, 266, 10],
+                    [Item::GOLDEN_APPLE, 1, 264, 5]
+                ],
+                Item::ENCHANTING_TABLE,
+                [
+                    [Item::BOOK, 5, 266, 10],
+                    [Item::ENCHANTING_TABLE, 1, 264, 20]
+                ],
+                Item::BOW,
+                [
+                    [Item::BOW, 1, 264, 1],
+                    [Item::ARROW, 2, 266, 1]
+                ],
+                Item::WOODEN_SWORD,
+                [
+                    [Item::WOODEN_SWORD, 1, 336, 20],
+                    [Item::STONE_SWORD, 1, 265, 2],
+                    [Item::IRON_SWORD, 1, 265, 10],
+                    [Item::DIAMOND_SWORD, 1, 264, 5]
+                ],
+                Item::IRON_CHESTPLATE,
+                [
+                    [Item::LEATHER_CAP, 1, 336, 5],
+                    [Item::LEATHER_PANTS, 1, 336, 10],
+                    [Item::LEATHER_BOOTS, 1, 336, 5],
+                    [Item::LEATHER_TUNIC, 1, 336, 10],
+                    [Item::CHAIN_CHESTPLATE, 1, 265, 5],
+                    [Item::IRON_CHESTPLATE, 1, 266, 2],
+                    [Item::DIAMOND_CHESTPLATE, 1, 264, 5]
+                ]
+            ]);
             $shop->save();
         }
 
-
         $this->getServer()->getScheduler()->scheduleRepeatingTask(new BWRefreshSigns($this), 20);
         $this->getServer()->getScheduler()->scheduleRepeatingTask(new BWGameSender($this), 20);
-
     }
-    ############################################################################################################
-    ############################################################################################################
-    ############################################################################################################
-    #################################    ===[EIGENE FUNKTIONEN]===     #########################################
-    ############################################################################################################
-    ############################################################################################################
-    ############################################################################################################
+
     public function copymap($src, $dst) {
         $dir = opendir($src);
         @mkdir($dst);
@@ -250,23 +188,25 @@ class Bedwars extends PluginBase implements Listener {
         }
         closedir($dir);
     }
-    public function getTeams($arena){
-        $config = new Config($this->getDataFolder()."Arenas/".$arena.".yml", Config::YAML);
-        $array = array();
-        foreach($this->getAllTeams() as $team){
-            if(!empty($config->getNested("Spawn.".$team))){
+
+    public function getTeams($arena) {
+        $config = new Config($this->getDataFolder() . "Arenas/" . $arena . ".yml", Config::YAML);
+        $array = [];
+        foreach ($this->getAllTeams() as $team) {
+            if (!empty($config->getNested("Spawn." . $team))) {
                 $array[] = $team;
             }
         }
 
         return $array;
     }
-    public function getPlayers($arena){
+
+    public function getPlayers($arena) {
         $config = new Config($this->getDataFolder()."Arenas/".$arena.".yml", Config::YAML);
 
         $playersXXX = $config->get("Players");
 
-        $players = array();
+        $players = [];
 
         foreach ($playersXXX as $x){
             if($x != "steve steve"){
