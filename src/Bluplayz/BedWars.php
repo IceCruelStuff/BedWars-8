@@ -202,144 +202,157 @@ class Bedwars extends PluginBase implements Listener {
     }
 
     public function getPlayers($arena) {
-        $config = new Config($this->getDataFolder()."Arenas/".$arena.".yml", Config::YAML);
+        $config = new Config($this->getDataFolder() . "Arenas/" . $arena . ".yml", Config::YAML);
 
-        $playersXXX = $config->get("Players");
+        $configPlayers = $config->get("Players");
 
         $players = [];
 
-        foreach ($playersXXX as $x){
-            if($x != "steve steve"){
-                $players[] = $x;
+        foreach ($configPlayers as $player) {
+            if ($player != "steve steve") {
+                $players[] = $player;
             }
         }
 
         return $players;
     }
-    public function getTeam($pn){
 
+    public function getTeam($pn) {
         $pn = str_replace("§", "", $pn);
         $pn = str_replace(TextFormat::ESCAPE, "", $pn);
         $color = $pn{0};
         return $this->convertColorToTeam($color);
     }
-    public function getAvailableTeams($arena){
+
+    public function getAvailableTeams($arena) {
         $teams = $this->getTeams($arena);
-        $config = new Config($this->getDataFolder()."Arenas/".$arena.".yml", Config::YAML);
+        $config = new Config($this->getDataFolder() . "Arenas/" . $arena . ".yml", Config::YAML);
 
         $players = $this->getPlayers($arena);
 
-        $availableTeams = array();
+        $availableTeams = [];
 
         $ppt = (int) $config->get("PlayersPerTeam");
 
-        $teamcount = 0;
-        foreach($teams as $team){
-
-            foreach($players as $pn){
-                $p = $this->getServer()->getPlayerExact($pn);
-                if($p != null){
-                    $pnn = $p->getNameTag();
-                    if($this->getTeam($pnn) === $team){
-                        $teamcount++;
+        $teamCount = 0;
+        foreach ($teams as $team) {
+            foreach ($players as $pn) {
+                $player = $this->getServer()->getPlayerExact($pn);
+                if ($player != null) {
+                    $pnn = $player->getNameTag();
+                    if ($this->getTeam($pnn) === $team) {
+                        $teamCount++;
                     }
                 }
             }
-            if($teamcount < $ppt){
+            if ($teamCount < $ppt) {
                 $availableTeams[] = $team;
             }
-            $teamcount = 0;
+            $teamCount = 0;
         }
 
-        $array = array();
-        $teamcount = 0;
-        $teamcount2 = 0;
-        foreach($availableTeams as $team){
-
-            if(count($array) == 0){
+        $array = [];
+        $teamCount = 0;
+        $teamCount2 = 0;
+        foreach ($availableTeams as $team) {
+            if (count($array) == 0) {
                 $array[] = $team;
             } else {
-                foreach($players as $pn){
-                    $p = $this->getServer()->getPlayerExact($pn);
-                    if($p != null){
+                foreach ($players as $pn) {
+                    $player = $this->getServer()->getPlayerExact($pn);
+                    if ($player != null) {
                         $pnn = $p->getNameTag();
-                        if($this->getTeam($pnn) === $team){
-                            $teamcount++;
+                        if ($this->getTeam($pnn) === $team) {
+                            $teamCount++;
                         }
                     }
                 }
-                foreach($players as $pn){
+                foreach ($players as $pn) {
                     $p = $this->getServer()->getPlayerExact($pn);
-                    if($p != null){
+                    if ($p != null) {
                         $pnn = $p->getNameTag();
-                        if($this->getTeam($pnn) === $array[0]){
-                            $teamcount2++;
+                        if ($this->getTeam($pnn) === $array[0]) {
+                            $teamCount2++;
                         }
                     }
                 }
-                if($teamcount >= $teamcount2){
-                    //hinten anhängen
+                if ($teamCount >= $teamCount2) {
                     array_push($array, $team);
                 } else {
                     array_unshift($array, $team);
                 }
-                $teamcount = 0;
-                $teamcount2 = 0;
+                $teamCount = 0;
+                $teamCount2 = 0;
             }
-
         }
 
         return $array;
     }
-    public function getAvailableTeam($arena){
 
+    public function getAvailableTeam($arena) {
         $teams = $this->getAvailableTeams($arena);
-        if(isset($teams[0])){
+        if (isset($teams[0])) {
             return $teams[0];
         } else {
             return "WHITE";
         }
     }
-    public function getAliveTeams($arena){
-        $alive = array();
+
+    public function getAliveTeams($arena) {
+        $alive = [];
 
         $teams = $this->getTeams($arena);
         $players = $this->getPlayers($arena);
 
-        $teamcount = 0;
-        foreach($teams as $team){
-            foreach($players as $pn){
-                $p = $this->getServer()->getPlayerExact($pn);
-                if($p != null) {
-                    $pnn = $p->getNameTag();
+        $teamCount = 0;
+        foreach ($teams as $team) {
+            foreach ($players as $pn) {
+                $player = $this->getServer()->getPlayerExact($pn);
+                if($player != null) {
+                    $pnn = $player->getNameTag();
                     if ($this->getTeam($pnn) == $team) {
-                        $teamcount++;
+                        $teamCount++;
                     }
                 }
             }
-            if($teamcount != 0){
+            if ($teamCount != 0) {
                 $alive[] = $team;
             }
-            $teamcount = 0;
+            $teamCount = 0;
         }
 
         return $alive;
     }
-    public function convertColorToTeam($color){
 
-        if($color == "9")return "BLUE";
-        if($color == "c")return "RED";
-        if($color == "a")return "GREEN";
-        if($color == "e")return "YELLOW";
-        if($color == "5")return "PURPLE";
-        if($color == "0")return "BLACK";
-        if($color == "7")return "GRAY";
-        if($color == "b")return "AQUA";
-
+    public function convertColorToTeam($color) {
+        if ($color == "9") {
+            return "BLUE";
+        }
+        if ($color == "c") {
+            return "RED";
+        }
+        if ($color == "a") {
+            return "GREEN";
+        }
+        if ($color == "e") {
+            return "YELLOW";
+        }
+        if ($color == "5") {
+            return "PURPLE";
+        }
+        if ($color == "0") {
+            return "BLACK";
+        }
+        if ($color == "7") {
+            return "GRAY";
+        }
+        if ($color == "b") {
+            return "AQUA";
+        }
         return "WHITE";
     }
-    public function convertTeamToColor($team){
 
+    public function convertTeamToColor($team) {
         if($team == "BLUE")return "9";
         if($team == "RED")return "c";
         if($team == "GREEN")return "a";
